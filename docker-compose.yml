@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: url_shortener_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      # This variable is for local development only
+      DATABASE_URL: postgresql://user:password@db:5432/url_shortener_db
+      SENTRY_DSN: "" # Placeholder for local
+    volumes:
+      - ./app:/app/app # Mount the app directory for live code changes
+
+volumes:
+  postgres_data:
